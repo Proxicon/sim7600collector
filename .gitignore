@@ -357,5 +357,6 @@ MigrationBackup/
 
 # More excludes
 Migrations/
+out/
 *.txt
 appsettings.Development.json
