@@ -1,7 +1,5 @@
-# sim7600collector
-
-## Simple asp.net minimalist API
-For the sim7600 to post data to across the iNet
+# Sim7600collector - Simple asp.net minimalist API
+- Collector for the [sim7600nF](https://github.com/Proxicon/sim7600nF) to post data to across the iNet
 
 ## EF
 dotnet ef migrations add InitialCreate
