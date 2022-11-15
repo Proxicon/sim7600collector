@@ -360,3 +360,4 @@ Migrations/
 out/
 *.txt
 appsettings.Development.json
+appsettings.Release.json
