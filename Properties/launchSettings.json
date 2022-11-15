@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "sim7600collector": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:57538;http://localhost:57539"
+    }
+  }
+}
