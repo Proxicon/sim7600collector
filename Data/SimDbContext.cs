@@ -7,6 +7,7 @@ public class SimDbContext : DbContext
         public SimDbContext(DbContextOptions<SimDbContext> options)
             : base(options) { }
 
-        public DbSet<SimData> Sim7600Data => Set<SimData>();
-        public DbSet<SimLogs> Sim7600Logs => Set<SimLogs>();
+    public DbSet<SimData> Sim7600Data => Set<SimData>();
+    public DbSet<SimLogs> Sim7600Logs => Set<SimLogs>();
+    public DbSet<User> Users => Set<User>();
 }

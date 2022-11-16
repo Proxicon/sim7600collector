@@ -8,9 +8,9 @@ public class SimLogsDto
     public string? Message { get; set; }
 
     public SimLogsDto() { }
-    public SimLogsDto(SimLogs Sim7600Logs) =>
-    (Id, Device, Logitem, Message) = (Sim7600Logs.Id,
-                                      Sim7600Logs.Device,
-                                      Sim7600Logs.Logitem,
-                                      Sim7600Logs.Message);
+    public SimLogsDto(SimLogs simLogs) =>
+    (Id, Device, Logitem, Message) = (simLogs.Id,
+                                      simLogs.Device,
+                                      simLogs.Logitem,
+                                      simLogs.Message);
 }
