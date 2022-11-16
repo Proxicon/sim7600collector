@@ -1,4 +1,6 @@
-﻿namespace sim7600collector.Models.DTOs;
+﻿using Microsoft.AspNetCore.Authorization;
+
+namespace sim7600collector.Models.DTOs;
 
 public class SimDataDto
 {

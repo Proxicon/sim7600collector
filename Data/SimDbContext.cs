@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace sim7600collector.Data;
 
@@ -7,7 +8,7 @@ public class SimDbContext : DbContext
         public SimDbContext(DbContextOptions<SimDbContext> options)
             : base(options) { }
 
-    public DbSet<SimData> Sim7600Data => Set<SimData>();
-    public DbSet<SimLogs> Sim7600Logs => Set<SimLogs>();
-    public DbSet<User> Users => Set<User>();
+    public DbSet<SimData> _simData => Set<SimData>();
+    public DbSet<SimLogs> _simLogs => Set<SimLogs>();
+    public DbSet<User> _users => Set<User>();
 }
