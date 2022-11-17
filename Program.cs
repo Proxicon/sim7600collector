@@ -157,13 +157,13 @@ app.MapGet("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.Auth
 
 }).WithTags(new[] {"StateData"}).Produces(200).ProducesProblem(503).ProducesProblem(401);
 
-app.MapGet("/simdata/{id}", async (int id, SimDbContext db) =>
+app.MapGet("/simdata/{id}", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (int id, SimDbContext db) =>
     await db._simData.FindAsync(id)
         is SimData Sim7600Data
             ? Results.Ok(new SimDataDto(Sim7600Data))
             : Results.NotFound());
 
-app.MapPost("/simdata", async (SimDataDto Sim7600Data, SimDbContext db) =>
+app.MapPost("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (SimDataDto Sim7600Data, SimDbContext db) =>
 {
     var SimData = new SimData
     {
@@ -179,7 +179,7 @@ app.MapPost("/simdata", async (SimDataDto Sim7600Data, SimDbContext db) =>
     return Results.Created($"/Sim7600/{Sim7600Data.Id}", new SimDataDto(SimData));
 });
 
-app.MapGet("/simlogs", async (SimDbContext db) =>
+app.MapGet("/simlogs", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (SimDbContext db) =>
     await db._simLogs.Select(x => new SimLogsDto(x)).ToListAsync());
 
 app.MapGet("/simlogs/{id}", async (int id, SimDbContext db) =>
@@ -188,7 +188,7 @@ app.MapGet("/simlogs/{id}", async (int id, SimDbContext db) =>
             ? Results.Ok(new SimLogsDto(Sim7600Logs))
             : Results.NotFound());
 
-app.MapPost("/simlogs", async (SimLogsDto Sim7600LogsDto, SimDbContext db) =>
+app.MapPost("/simlogs", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (SimLogsDto Sim7600LogsDto, SimDbContext db) =>
 {
     var Sim7600Logs = new SimLogs
     {
