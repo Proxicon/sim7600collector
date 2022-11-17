@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using sim7600collector.Data;
@@ -85,7 +86,13 @@ builder.Services.AddSqlite<Sim7600Db>(connectionString);*/
 builder.Services.AddDbContext<SimDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetValue<string>("SqlServer:ConnectionString")));
 
+// Use SqlServer context factory
+/*builder.Services.AddDbContextFactory<SimDbContext>(option =>
+    option.UseSqlServer(builder.Configuration.GetValue<string>("SqlServer:ConnectionString")));*/
+
 builder.Services.AddHealthChecks().AddDbContextCheck<SimDbContext>();
+
+builder.Services.AddScoped<IValidator<UserInput>, UserInputValidator>();
 
 var app = builder.Build();
 
@@ -98,7 +105,6 @@ app.UseSwaggerUI(options =>
 
 
 // API
-
 app.MapPost("/token", async (SimDbContext db, HttpContext http, UserInput userInput, IValidator<UserInput> userInputValidator) =>
 {
     var validationResult = userInputValidator.Validate(userInput);
@@ -107,7 +113,7 @@ app.MapPost("/token", async (SimDbContext db, HttpContext http, UserInput userIn
         return Results.BadRequest();
     }
 
-    var loggedInUser = await dbContext.Users
+    var loggedInUser = await db._users
         .FirstOrDefaultAsync(user => user.Username == userInput.Username
         && user.Password == userInput.Password);
 
@@ -144,7 +150,7 @@ app.MapGet("/health", async (HealthCheckService healthCheckService) =>
     return report.Status == HealthStatus.Healthy ? Results.Ok(report) : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
 }).WithTags(new[] { "Health" }).Produces(200).ProducesProblem(503).ProducesProblem(401);
 
-app.MapGet("/simdata", async (SimDbContext db) =>
+app.MapGet("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (SimDbContext db) =>
 {
     var data = await db._simData.Select(x => new SimDataDto(x)).ToListAsync();
     return data;
@@ -196,5 +202,11 @@ app.MapPost("/simlogs", async (SimLogsDto Sim7600LogsDto, SimDbContext db) =>
 
     return Results.Created($"/Sim7600Logs/{Sim7600Logs.Id}", new SimLogsDto(Sim7600Logs));
 });
+
+app.UseAuthentication();
+
+app.UseRouting();
+
+app.UseAuthorization();
 
 app.Run();
