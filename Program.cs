@@ -204,7 +204,7 @@ app.MapGet("/simlogs", [Authorize(AuthenticationSchemes = JwtBearerDefaults.Auth
                                                                    .ProducesProblem(503)
                                                                    .ProducesProblem(401);
 
-app.MapGet("/simlogs/{id}", async (int id, SimDbContext db) =>
+app.MapGet("/simlogs/{id}", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]  async (int id, SimDbContext db) =>
     await db._simLogs.FindAsync(id)
         is SimLogs Sim7600Logs
             ? Results.Ok(new SimLogsDto(Sim7600Logs))
