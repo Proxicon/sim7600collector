@@ -89,6 +89,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 /*var connectionString = builder.Configuration.GetConnectionString("Sim7600Data") ?? "Data Source=sim7600collector.db";
 builder.Services.AddSqlite<Sim7600Db>(connectionString);*/
 
+// update to test build
+
 // Use SqlServer
 builder.Services.AddDbContext<SimDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetValue<string>("SqlServer:ConnectionString")));
