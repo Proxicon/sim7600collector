@@ -149,26 +149,35 @@ app.MapPost("/token", async (SimDbContext db, HttpContext http, UserInput userIn
     );
 
     return Results.Json(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
-}).WithTags("Authentication").Accepts<UserInput>("application/json").Produces(200).Produces(401).ProducesProblem(StatusCodes.Status400BadRequest);
+}).WithTags("Authentication").Accepts<UserInput>("application/json")
+  .Produces(200)
+  .Produces(401)
+  .ProducesProblem(StatusCodes.Status400BadRequest);
 
-app.MapGet("/health", async (HealthCheckService healthCheckService) =>
+app.MapGet("/health", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]  async (HealthCheckService healthCheckService) =>
 {
     var report = await healthCheckService.CheckHealthAsync();
     return report.Status == HealthStatus.Healthy ? Results.Ok(report) : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
-}).WithTags(new[] { "Health" }).Produces(200).ProducesProblem(503).ProducesProblem(401);
+}).WithTags(new[] { "Health" })
+  .Produces(200)
+  .ProducesProblem(503)
+  .ProducesProblem(401);
 
 app.MapGet("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (SimDbContext db) =>
 {
     var data = await db._simData.Select(x => new SimDataDto(x)).ToListAsync();
     return data;
 
-}).WithTags(new[] {"StateData"}).Produces(200).ProducesProblem(503).ProducesProblem(401);
+}).WithTags(new[] {"DeviceData"}).Produces(200).ProducesProblem(503).ProducesProblem(401);
 
 app.MapGet("/simdata/{id}", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (int id, SimDbContext db) =>
     await db._simData.FindAsync(id)
         is SimData Sim7600Data
             ? Results.Ok(new SimDataDto(Sim7600Data))
-            : Results.NotFound());
+            : Results.NotFound()).WithTags(new[] { "DeviceData" })
+                                 .Produces(200)
+                                 .ProducesProblem(503)
+                                 .ProducesProblem(401);
 
 app.MapPost("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (SimDataDto Sim7600Data, SimDbContext db) =>
 {
@@ -184,16 +193,25 @@ app.MapPost("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.Aut
     await db.SaveChangesAsync();
 
     return Results.Created($"/Sim7600/{Sim7600Data.Id}", new SimDataDto(SimData));
-});
+}).WithTags(new[] { "DeviceData" })
+  .Produces(200)
+  .ProducesProblem(503)
+  .ProducesProblem(401);
 
 app.MapGet("/simlogs", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (SimDbContext db) =>
-    await db._simLogs.Select(x => new SimLogsDto(x)).ToListAsync());
+    await db._simLogs.Select(x => new SimLogsDto(x)).ToListAsync()).WithTags(new[] { "DeviceLogs" })
+                                                                   .Produces(200)
+                                                                   .ProducesProblem(503)
+                                                                   .ProducesProblem(401);
 
 app.MapGet("/simlogs/{id}", async (int id, SimDbContext db) =>
     await db._simLogs.FindAsync(id)
         is SimLogs Sim7600Logs
             ? Results.Ok(new SimLogsDto(Sim7600Logs))
-            : Results.NotFound());
+            : Results.NotFound()).WithTags(new[] { "DeviceLogs" })
+                                 .Produces(200)
+                                 .ProducesProblem(503)
+                                 .ProducesProblem(401);
 
 app.MapPost("/simlogs", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (SimLogsDto Sim7600LogsDto, SimDbContext db) =>
 {
@@ -208,7 +226,10 @@ app.MapPost("/simlogs", [Authorize(AuthenticationSchemes = JwtBearerDefaults.Aut
     await db.SaveChangesAsync();
 
     return Results.Created($"/Sim7600Logs/{Sim7600Logs.Id}", new SimLogsDto(Sim7600Logs));
-});
+}).WithTags(new[] { "DeviceLogs" })
+  .Produces(200)
+  .ProducesProblem(503)
+  .ProducesProblem(401);
 
 if (!app.Environment.IsDevelopment())
 {
@@ -223,9 +244,8 @@ else
 }
 
 app.UseAuthentication();
-
-// app.UseRouting();
-
 app.UseAuthorization();
+
+//app.UseRouting();
 
 app.Run();
