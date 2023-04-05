@@ -184,7 +184,13 @@ app.MapPost("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.Aut
     var SimData = new SimData
     {
         Device = Sim7600Data.Device,
-        Location = Sim7600Data.Location,
+        Latitude = Sim7600Data.Latitude,
+        Longitude = Sim7600Data.Longitude,
+        Date = Sim7600Data.Date,
+        UTCTime = Sim7600Data.UTCTime,
+        Altitude = Sim7600Data.Altitude,
+        Speed = Sim7600Data.Speed,
+        Course = Sim7600Data.Course,
         Battery = Sim7600Data.Battery,
         Signal = Sim7600Data.Signal,
     };
