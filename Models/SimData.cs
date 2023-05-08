@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace sim7600collector.Models;
 
@@ -22,4 +23,8 @@ public class SimData
     public string Altitude { get; internal set; }
     public string Speed { get; internal set; }
     public string Course { get; internal set; }
+
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public DateTime CreatedAt { get; set; }
+
 }

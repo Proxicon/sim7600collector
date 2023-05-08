@@ -181,18 +181,24 @@ app.MapGet("/simdata/{id}", [Authorize(AuthenticationSchemes = JwtBearerDefaults
 
 app.MapPost("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] async (SimDataDto Sim7600Data, SimDbContext db) =>
 {
+
+    // Split the GPS string
+    string[] gpsValues = Sim7600Data.Location.Split(',');
+
     var SimData = new SimData
     {
         Device = Sim7600Data.Device,
-        Latitude = Sim7600Data.Latitude,
-        Longitude = Sim7600Data.Longitude,
-        Date = Sim7600Data.Date,
-        UTCTime = Sim7600Data.UTCTime,
-        Altitude = Sim7600Data.Altitude,
-        Speed = Sim7600Data.Speed,
-        Course = Sim7600Data.Course,
+        Location = Sim7600Data.Location,
+        Latitude = gpsValues[0] + gpsValues[1], // combine latitude and direction
+        Longitude = gpsValues[2] + gpsValues[3], // combine longitude and direction
+        Date = gpsValues[4],
+        UTCTime = gpsValues[5],
+        Altitude = gpsValues[6],
+        Speed = gpsValues[7],
+        Course = gpsValues[8],
         Battery = Sim7600Data.Battery,
         Signal = Sim7600Data.Signal,
+        CreatedAt = DateTime.UtcNow,
     };
 
     db._simData.Add(SimData);
@@ -226,6 +232,7 @@ app.MapPost("/simlogs", [Authorize(AuthenticationSchemes = JwtBearerDefaults.Aut
         Device = Sim7600LogsDto.Device,
         Logitem = Sim7600LogsDto.Logitem,
         Message = Sim7600LogsDto.Message,
+        CreatedAt = DateTime.UtcNow,
     };
 
     db._simLogs.Add(Sim7600Logs);
