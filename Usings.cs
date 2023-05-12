@@ -21,3 +21,6 @@ global using sim7600collector.Models;
 
 // Model.DTO
 global using sim7600collector.Models.DTOs;
+
+// Utils
+global using sim7600collector.GPSUtils;

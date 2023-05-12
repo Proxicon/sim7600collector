@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
 using sim7600collector.Data;
+using System;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseKestrel(options => options.AddServerHeader = false);
@@ -185,19 +188,55 @@ app.MapPost("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.Aut
     // Split the GPS string
     string[] gpsValues = Sim7600Data.Location.Split(',');
 
+    // Get the speed value from the array
+    double speedInKnots = double.Parse(gpsValues[7]);
+
+    // Convert the speed value from knots to kmph and mph
+    double speedInKmph = speedInKnots * 1.852;
+    double speedInMph = speedInKnots * 1.1508;
+
+    // Get the DecimalDegrees
+    var latitudeAndLongitude = GPSConversion.ConvertGpsToDecimalDegrees(Sim7600Data.Location);
+
+    // Set Altitude type
+    double altitude = Convert.ToDouble(gpsValues[6]);
+
+    // Set the course type
+    double cource;
+    if (!string.IsNullOrEmpty(gpsValues[8]))
+    {
+        cource = Convert.ToDouble(gpsValues[8]);
+    }else
+    {
+        cource = Convert.ToDouble("0");
+    }
+
+    // Set the date 
+    DateTime dateOnly = GPSConversion.GetDateOnly(Sim7600Data.Location);
+
+    // Set the UTC Time
+    TimeSpan timeOnly = GPSConversion.GetTimeOnly(Sim7600Data.Location);
+
+    // Combine the date and time 
+    DateTime dateTime = GPSConversion.GetDateTime(Sim7600Data.Location);
+
+
     var SimData = new SimData
     {
         Device = Sim7600Data.Device,
         Location = Sim7600Data.Location,
         Latitude = gpsValues[0] + gpsValues[1], // combine latitude and direction
         Longitude = gpsValues[2] + gpsValues[3], // combine longitude and direction
-        Date = gpsValues[4],
-        UTCTime = gpsValues[5],
-        Altitude = gpsValues[6],
-        Speed = gpsValues[7],
-        Course = gpsValues[8],
-        Battery = Sim7600Data.Battery,
-        Signal = Sim7600Data.Signal,
+        DecimalLatitude = latitudeAndLongitude[0],
+        DecimalLongitude = latitudeAndLongitude[1],
+        Date = dateOnly.Date,
+        UTCTime = timeOnly,
+        DateTime = dateTime,
+        Altitude = altitude,
+        SpeedKnots = speedInKnots,
+        SpeedKmph = speedInKmph,
+        SpeedMph = speedInMph,
+        Course = cource,
         CreatedAt = DateTime.UtcNow,
     };
 
