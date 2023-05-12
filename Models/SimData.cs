@@ -14,8 +14,6 @@ public class SimData
     public string? Device { get; set; }
     [Required]
     public string? Location { get; set; }
-    public string? Battery { get; set; }
-    public int Signal { get; set; }
     public string? Latitude { get; internal set; }
     public string? Longitude { get; internal set; }
     public Double DecimalLatitude { get; internal set; }

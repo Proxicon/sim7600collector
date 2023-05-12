@@ -188,28 +188,15 @@ app.MapPost("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.Aut
     // Split the GPS string
     string[] gpsValues = Sim7600Data.Location.Split(',');
 
-    // Get the speed value from the array
-    double speedInKnots = double.Parse(gpsValues[7]);
-
-    // Convert the speed value from knots to kmph and mph
-    double speedInKmph = speedInKnots * 1.852;
-    double speedInMph = speedInKnots * 1.1508;
+    // Set the speed value from knots to kmph & mph
+    GPSConversion.ConvertSpeed(gpsValues[7], out double speedInKnots, out double speedInKmph, out double speedInMph);
 
     // Get the DecimalDegrees
-    var latitudeAndLongitude = GPSConversion.ConvertGpsToDecimalDegrees(Sim7600Data.Location);
+    GPSConversion.ConvertGpsToDecimalDegrees(Sim7600Data.Location, out double decimalLatitute, out double decimalLongitude);
 
-    // Set Altitude type
-    double altitude = Convert.ToDouble(gpsValues[6]);
-
-    // Set the course type
-    double cource;
-    if (!string.IsNullOrEmpty(gpsValues[8]))
-    {
-        cource = Convert.ToDouble(gpsValues[8]);
-    }else
-    {
-        cource = Convert.ToDouble("0");
-    }
+    // Set the course & altitude type
+    double altitude = GPSConversion.ParseDoubleValue(gpsValues[6]);
+    double course = GPSConversion.ParseDoubleValue(gpsValues[8]);
 
     // Set the date 
     DateTime dateOnly = GPSConversion.GetDateOnly(Sim7600Data.Location);
@@ -220,15 +207,14 @@ app.MapPost("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.Aut
     // Combine the date and time 
     DateTime dateTime = GPSConversion.GetDateTime(Sim7600Data.Location);
 
-
     var SimData = new SimData
     {
         Device = Sim7600Data.Device,
         Location = Sim7600Data.Location,
         Latitude = gpsValues[0] + gpsValues[1], // combine latitude and direction
         Longitude = gpsValues[2] + gpsValues[3], // combine longitude and direction
-        DecimalLatitude = latitudeAndLongitude[0],
-        DecimalLongitude = latitudeAndLongitude[1],
+        DecimalLatitude = decimalLatitute,
+        DecimalLongitude = decimalLongitude,
         Date = dateOnly.Date,
         UTCTime = timeOnly,
         DateTime = dateTime,
@@ -236,7 +222,7 @@ app.MapPost("/simdata", [Authorize(AuthenticationSchemes = JwtBearerDefaults.Aut
         SpeedKnots = speedInKnots,
         SpeedKmph = speedInKmph,
         SpeedMph = speedInMph,
-        Course = cource,
+        Course = course,
         CreatedAt = DateTime.UtcNow,
     };
 
