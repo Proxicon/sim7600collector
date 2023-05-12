@@ -28,8 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
     <Folder Include="Filters\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
