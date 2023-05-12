@@ -4,7 +4,7 @@ namespace sim7600collector.GPSUtils
 {
     public class GPSConversion
     {
-        public static double[] ConvertGpsToDecimalDegrees(string gpsString)
+        public static void ConvertGpsToDecimalDegrees(string gpsString, out double decimalLatitute, out double decimalLongitude)
         {
             // Split the GPS string into an array of strings.
             var gpsValues = gpsString.Split(',');
@@ -14,21 +14,19 @@ namespace sim7600collector.GPSUtils
             var longitudeString = gpsValues[2];
 
             // Convert latitude and longitude strings to decimal degrees.
-            double latitude = ParseGpsCoordinate(latitudeString);
-            double longitude = ParseGpsCoordinate(longitudeString);
+            decimalLatitute = ParseGpsCoordinate(latitudeString);
+            decimalLongitude = ParseGpsCoordinate(longitudeString);
 
             // Check the direction of the latitude and longitude values.
             if (gpsValues[1] == "S")
             {
-                latitude = -latitude;
+                decimalLatitute = -decimalLatitute;
             }
+            
             if (gpsValues[3] == "E")
             {
-                longitude = -longitude;
+                decimalLongitude = decimalLongitude;
             }
-
-            // Return the latitude and longitude values in decimal degrees.
-            return new double[] { latitude, longitude };
         }
 
         private static double ParseGpsCoordinate(string coordinateString)
@@ -46,7 +44,7 @@ namespace sim7600collector.GPSUtils
         {
             var gpsValues = gpsString.Split(',');
 
-            DateTime date = DateTime.ParseExact(gpsValues[4], "MMddyy", CultureInfo.InvariantCulture);
+            DateTime date = DateTime.ParseExact(gpsValues[4], "ddMMyy", CultureInfo.InvariantCulture);
 
             return date.Date;
         }
@@ -55,11 +53,15 @@ namespace sim7600collector.GPSUtils
         {
             var gpsValues = gpsString.Split(',');
 
-            TimeSpan timeSpan = TimeSpan.FromSeconds(Convert.ToDouble(gpsValues[5]));
+            string timeString = gpsValues[5];
+            int hours = int.Parse(timeString.Substring(0, 2));
+            int minutes = int.Parse(timeString.Substring(2, 2));
+            int seconds = int.Parse(timeString.Substring(4, 2));
+
+            TimeSpan timeSpan = new TimeSpan(hours, minutes, seconds);
 
             return timeSpan;
         }
-
 
         public static DateTime GetDateTime(string gpsString)
         {
@@ -69,6 +71,23 @@ namespace sim7600collector.GPSUtils
             DateTime dateTime = new DateTime(dateOnly.Year, dateOnly.Month, dateOnly.Day, timeOnly.Hours, timeOnly.Minutes, timeOnly.Seconds);
 
             return dateTime;
+        }
+
+        public static void ConvertSpeed(string speed, out double speedInKnots, out double speedInKmph, out double speedInMph)
+        {
+            speedInKnots = double.Parse(speed);
+            speedInKmph = Math.Round(speedInKnots * 1.852, 2);
+            speedInMph = Math.Round(speedInKnots * 1.1508, 2);
+        }
+
+        public static double ParseDoubleValue(string value)
+        {
+            if (double.TryParse(value, out double result))
+            {
+                return result;
+            }
+
+            return 0.0; // Default value if parsing fails
         }
     }
 }
